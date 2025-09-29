@@ -1,0 +1,11 @@
+version: "3.9"
+
+services:
+  exdev-apply-api:
+    image: ghcr.io/<OWNER>/<REPO>:latest   
+    container_name: exdev-apply-api
+    restart: unless-stopped
+    ports:
+      - "3001:3000"                      
+    env_file:
+      - /opt/exdev-apply-api/.env   
