@@ -42,7 +42,9 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository }}:${{ steps.meta.outputs.TAG }}
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:pr-${{ github.event_number }}
 
       - name: Deploy over SSH
         # evita forks (no hay secrets)
