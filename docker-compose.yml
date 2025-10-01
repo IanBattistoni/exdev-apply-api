@@ -9,3 +9,4 @@ services:
       - "3001:3000"                      
     env_file:
       - /opt/exdev-apply-api/.env   
+      
