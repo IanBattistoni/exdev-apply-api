@@ -44,18 +44,26 @@ jobs:
             set -e
             APP_DIR=/opt/exdev-apply-api
             REPO=IanBattistoni/exdev-apply-api
+            SHA=${{ github.sha }}
 
-            
+            # Asegura permisos correctos (por si alguna vez vuelve a quedar con root)
+            sudo mkdir -p "$APP_DIR"
+            sudo chown -R $USER:$USER "$APP_DIR"
+
             if [ ! -d "$APP_DIR/.git" ]; then
-              rm -rf "$APP_DIR"
-              mkdir -p "$APP_DIR"
-              git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$REPO "$APP_DIR"
+              # Inicializa repo EN ese directorio (no se borra .env)
+              git -C "$APP_DIR" init
+              git -C "$APP_DIR" remote add origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$REPO
+              git -C "$APP_DIR" fetch --depth=1 origin master
+              git -C "$APP_DIR" checkout -B master origin/master
             else
-              git -C "$APP_DIR" fetch --all
+              git -C "$APP_DIR" fetch --all --depth=1
               git -C "$APP_DIR" checkout -B master origin/master
             fi
 
-            
+            # (Opcional) alinear exactamente al commit que se buildéo
+            git -C "$APP_DIR" checkout "$SHA" || true
+
             docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
             docker compose -f "$APP_DIR/docker-compose.yml" pull
             docker compose -f "$APP_DIR/docker-compose.yml" up -d --remove-orphans
