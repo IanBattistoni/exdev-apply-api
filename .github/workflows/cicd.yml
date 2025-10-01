@@ -33,7 +33,7 @@ jobs:
           push: true
           tags: ghcr.io/ianbattistoni/exdev-apply-api:latest  # todo en minúsculas
 
-      - name: Deploy over SSH
+      - name: Deploy over SSH (only master)
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -42,17 +42,21 @@ jobs:
           port: ${{ secrets.SSH_PORT || 22 }}
           script: |
             set -e
-            if [ ! -d /opt/exdev-apply-api ]; then
-              mkdir -p /opt/exdev-apply-api
-              cd /opt/exdev-apply-api
-              git clone https://github.com/IanBattistoni/exdev-apply-api .
+            APP_DIR=/opt/exdev-apply-api
+            REPO=IanBattistoni/exdev-apply-api
+
+            
+            if [ ! -d "$APP_DIR/.git" ]; then
+              rm -rf "$APP_DIR"
+              mkdir -p "$APP_DIR"
+              git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$REPO "$APP_DIR"
             else
-              cd /opt/exdev-apply-api
-              git fetch --all
-              git checkout -B master origin/master
+              git -C "$APP_DIR" fetch --all
+              git -C "$APP_DIR" checkout -B master origin/master
             fi
 
+            
             docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
-            docker compose -f docker-compose.yml pull
-            docker compose -f docker-compose.yml up -d --remove-orphans
+            docker compose -f "$APP_DIR/docker-compose.yml" pull
+            docker compose -f "$APP_DIR/docker-compose.yml" up -d --remove-orphans
             docker image prune -f
