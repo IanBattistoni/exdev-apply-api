@@ -7,7 +7,8 @@ async function bootstrap() {
     const WEB_ORIGINS = [
     'https://exdev.cl',
     'http://localhost:5000',
-    'http://localhost:3000'  
+    'http://localhost:3000',
+    'https://tomas.exdev.cl'  
   ];
 
   app.enableCors({
