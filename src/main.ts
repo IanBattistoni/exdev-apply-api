@@ -4,16 +4,28 @@ import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  //desactivar cache
+  const expressApp = app.getHttpAdapter().getInstance();
+  expressApp.set('etag', false);
+
     const WEB_ORIGINS = [
     'https://exdev.cl',
+    'https://www.exdev.cl', 
     'http://localhost:5000',
     'http://localhost:3000',
-    'https://tomas.exdev.cl'  
+    'https://tomas.exdev.cl',
+    'https://www.tomas.exdev.cl'  
   ];
-
+  app.use((req, res, next) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    next();
+  });
   app.enableCors({
     origin: (origin, cb) => {
-      // permite herramientas como Postman (sin origin)
+      
       if (!origin) return cb(null, true);
       cb(null, WEB_ORIGINS.includes(origin));
     },
