@@ -29,7 +29,7 @@ async function bootstrap() {
       if (!origin) return cb(null, true);
       cb(null, WEB_ORIGINS.includes(origin));
     },
-    methods: ['GET','POST'],
+    methods: ['GET','POST','OPTIONS'],
     allowedHeaders: ['Content-Type','Authorization'],
     credentials: false, 
     optionsSuccessStatus: 204,
